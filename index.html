@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yahia El-Nobi | Physics Dashboard v8.0</title>
+    <title>Yahia El-Nobi | Physics Dashboard v9.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -50,49 +50,54 @@
         <main class="px-4 lg:max-w-7xl mx-auto mt-6">
             
             <section id="students" class="tab-content active">
-                <div class="glass-card p-6 mb-6">
+                <div class="glass-card p-6 mb-6 text-right">
                     <h3 class="font-black mb-4">➕ إضافة طالب</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
                         <input type="text" id="stdName" placeholder="الاسم" class="p-3 rounded-xl border font-bold">
                         <input type="tel" id="stdPhone" placeholder="موبايل الطالب" class="p-3 rounded-xl border text-center font-bold">
                         <input type="tel" id="parentPhone" placeholder="رقم ولي الأمر" class="p-3 rounded-xl border text-center font-bold">
-                        <input type="text" id="stdCenter" placeholder="المجموعة" class="p-3 rounded-xl border font-bold">
+                        <input type="text" id="stdCenter" placeholder="المجموعة" class="p-3 rounded-xl border font-bold text-right">
                         <button onclick="addStudent()" class="bg-slate-800 text-white font-bold rounded-xl p-3">حفظ ✅</button>
                     </div>
                 </div>
-                <input type="text" onkeyup="searchStudents(this.value)" placeholder="🔍 ابحث هنا..." class="w-full p-4 rounded-xl glass-card mb-6 outline-none font-bold border-none shadow-sm">
-                <div id="studentsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                <input type="text" onkeyup="searchStudents(this.value)" placeholder="🔍 ابحث هنا..." class="w-full p-4 rounded-xl glass-card mb-6 outline-none font-bold border-none shadow-sm text-right">
+                <div id="studentsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-right"></div>
             </section>
 
             <section id="attendance" class="tab-content">
                 <div class="glass-card p-6 shadow-sm text-center">
-                    <h2 class="font-black text-xl mb-4">دفتر الحضور 📅</h2>
+                    <h2 class="font-black text-xl mb-4 text-blue-800">دفتر الحضور 📅</h2>
                     <input type="date" id="attDate" onchange="loadAttendance()" class="p-3 rounded-xl border font-bold text-center bg-blue-50 mb-4">
                     <input type="text" id="attSearchInput" onkeyup="loadAttendance()" placeholder="🔍 ابحث بالاسم أو الكود للتحضير اليدوي..." class="w-full p-4 rounded-xl border-2 border-blue-100 outline-none font-bold text-center mb-6">
-                    <div id="attList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                    <div id="attList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-right"></div>
                 </div>
             </section>
 
             <section id="grades" class="tab-content">
-                <div class="glass-card p-8 max-w-xl mx-auto border-t-8 border-green-500">
-                    <h2 class="text-2xl font-black mb-6 text-center">رصد الدرجات 📊</h2>
+                <div class="glass-card p-8 max-w-xl mx-auto border-t-8 border-green-500 shadow-xl">
+                    <h2 class="text-2xl font-black mb-6 text-center text-green-700">رصد الدرجات وإرسال واتساب 📊</h2>
                     <div class="space-y-4 text-center">
-                        <input type="text" id="gradeSearchName" onkeyup="searchGradeStudent(this.value)" placeholder="ابحث باسم الطالب..." class="w-full p-4 rounded-xl border font-bold text-center">
-                        <div id="gradeSearchResults" class="bg-white shadow-xl rounded-xl hidden border max-h-40 overflow-y-auto"></div>
-                        <input type="hidden" id="selectedGradeStdId">
-                        <input type="text" id="examName" placeholder="عنوان الامتحان" class="w-full p-4 rounded-xl border text-center">
-                        <div class="flex gap-2">
-                            <input type="number" id="gradeValue" placeholder="الدرجة" class="w-full p-4 rounded-xl border text-center font-black">
-                            <input type="number" id="maxGrade" placeholder="من" class="w-24 p-4 rounded-xl border text-center font-bold">
+                        <div class="relative">
+                            <input type="text" id="gradeSearchName" onkeyup="searchGradeStudent(this.value)" placeholder="ابحث باسم الطالب..." class="w-full p-4 rounded-xl border font-bold text-center shadow-sm">
+                            <div id="gradeSearchResults" class="absolute z-50 w-full bg-white shadow-2xl rounded-xl mt-1 hidden border max-h-48 overflow-y-auto text-right"></div>
                         </div>
-                        <button onclick="saveGrade()" class="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-lg">حفظ وإرسال 📱</button>
+                        <input type="hidden" id="selectedGradeStdId">
+                        
+                        <input type="text" id="examName" placeholder="عنوان الامتحان (مثلاً: شهر أكتوبر)" class="w-full p-4 rounded-xl border text-center font-bold">
+                        
+                        <div class="flex gap-2">
+                            <input type="number" id="gradeValue" placeholder="درجة الطالب" class="w-full p-4 rounded-xl border text-center font-black text-blue-700 text-xl">
+                            <input type="number" id="maxGrade" placeholder="من" class="w-24 p-4 rounded-xl border text-center font-bold text-gray-500">
+                        </div>
+                        
+                        <button onclick="saveGrade()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-xl shadow-lg transition-all transform hover:scale-105">حفظ وإرسال للوالد 📱</button>
                     </div>
                 </div>
             </section>
 
             <section id="reports" class="tab-content">
-                <h2 class="font-black text-red-600 text-xl mb-4">قائمة الغياب 🚫</h2>
-                <div id="absenceList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <h2 class="font-black text-red-600 text-xl mb-4 text-right">قائمة الغياب اليوم 🚫</h2>
+                <div id="absenceList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-right"></div>
             </section>
 
         </main>
@@ -106,7 +111,7 @@
     </div>
 
     <div id="infoModal" class="hidden fixed inset-0 z-[1000] bg-black/80 flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-xl p-6 relative">
+        <div class="glass-card w-full max-w-xl p-6 relative text-right">
             <button onclick="closeInfoModal()" class="float-left text-red-500 font-bold text-2xl">&times;</button>
             <div id="infoContent"></div>
         </div>
@@ -115,6 +120,7 @@
     <div id="printArea" class="hidden"></div>
 
     <script>
+        // --- إعدادات Firebase ---
         const firebaseConfig = {
             apiKey: "AIzaSyB0r9hwB5TgH5G0TrIT6Z_SVn7rz0hYA2I",
             authDomain: "job-6c3d4.firebaseapp.com",
@@ -128,19 +134,20 @@
         const db = firebase.database();
         let allStudents = [];
 
+        // --- نظام الدخول ---
         function checkLogin() {
             if(document.getElementById('sysPass').value === "1234") {
                 document.getElementById('loginModal').style.display = 'none';
                 document.getElementById('appContainer').style.opacity = '1';
                 localStorage.setItem('isLogged_Nobi', 'true');
-            } else { alert("خطأ!"); }
+            } else { alert("كلمة المرور خاطئة!"); }
         }
         if(localStorage.getItem('isLogged_Nobi') === 'true') {
             document.getElementById('loginModal').style.display = 'none';
             document.getElementById('appContainer').style.opacity = '1';
         }
 
-        // جلب البيانات الأساسية
+        // --- جلب البيانات ---
         db.ref('students').on('value', (snap) => {
             allStudents = snap.val() ? Object.values(snap.val()) : [];
             updateUI();
@@ -174,6 +181,68 @@
             });
         }
 
+        // --- نظام الواتساب الموحد ---
+        function sendWA(phone, name, msgType, extra = {}) {
+            if(!phone) { alert("عفواً، رقم ولي الأمر غير مسجل لهذا الطالب!"); return; }
+            let cleanPhone = phone.toString().replace(/\D/g, '');
+            if(!cleanPhone.startsWith('2')) cleanPhone = '2' + cleanPhone;
+            
+            let message = "";
+            if(msgType === 'absence') {
+                message = `مستر يحيى النوبي: نود إبلاغكم بغياب الطالب/ة (${name}) عن حصة الفيزياء اليوم.`;
+            } else if(msgType === 'grade') {
+                message = `مستر يحيى النوبي: نتيجة الطالب/ة (${name}) في اختبار (${extra.exam}) هي (${extra.score}) من (${extra.max}). نسأل الله له التوفيق.`;
+            }
+
+            window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        // --- نظام الدرجات المطور ---
+        function searchGradeStudent(q) {
+            if(!q) { document.getElementById('gradeSearchResults').classList.add('hidden'); return; }
+            const res = allStudents.filter(s => s.name.includes(q) || String(s.id).includes(q));
+            const div = document.getElementById('gradeSearchResults');
+            div.innerHTML = res.map(s => `<div onclick="selectStdGrade('${s.id}','${s.name}')" class="p-3 border-b cursor-pointer hover:bg-green-50 font-bold">${s.name} <span class="text-xs text-gray-400">(ID: ${s.id})</span></div>`).join('');
+            div.classList.remove('hidden');
+        }
+
+        function selectStdGrade(id, n) {
+            document.getElementById('selectedGradeStdId').value = id;
+            document.getElementById('gradeSearchName').value = n;
+            document.getElementById('gradeSearchResults').classList.add('hidden');
+        }
+
+        function saveGrade() {
+            const id = document.getElementById('selectedGradeStdId').value;
+            const score = document.getElementById('gradeValue').value;
+            const max = document.getElementById('maxGrade').value;
+            const exam = document.getElementById('examName').value || "اختبار فيزياء";
+            
+            if(!id) return alert("يرجى اختيار الطالب من القائمة أولاً!");
+            if(!score || !max) return alert("يرجى إدخال الدرجة والدرجة النهائية!");
+
+            const student = allStudents.find(s => s.id == id);
+            
+            // 1. الحفظ في قاعدة البيانات
+            db.ref('grades/'+Date.now()).set({
+                stdId: id,
+                name: student.name,
+                score: score,
+                max: max,
+                exam: exam,
+                date: new Date().toLocaleDateString('ar-EG')
+            }).then(() => {
+                // 2. إرسال واتساب فوراً
+                sendWA(student.parentPhone, student.name, 'grade', {score, max, exam});
+                
+                // 3. مسح الخانات
+                document.getElementById('gradeValue').value = '';
+                document.getElementById('gradeSearchName').value = '';
+                document.getElementById('selectedGradeStdId').value = '';
+            });
+        }
+
+        // --- الحضور والغياب ---
         function loadAttendance() {
             const date = document.getElementById('attDate').value;
             const search = document.getElementById('attSearchInput').value.toLowerCase();
@@ -182,19 +251,17 @@
                 const logs = snap.val() || {};
                 const filtered = allStudents.filter(s => s.name.toLowerCase().includes(search) || String(s.id).includes(search));
                 
-                // قائمة التحضير
                 document.getElementById('attList').innerHTML = filtered.map(s => `
                     <div class="glass-card p-4 flex justify-between items-center ${logs[s.id]?'border-r-4 border-green-500':''}">
                         <div><p class="font-bold text-sm">${s.name}</p><p class="text-[9px] text-blue-500">ID: ${s.id}</p></div>
                         <button onclick="toggleAtt('${s.id}','${s.name}',${!!logs[s.id]})" class="px-4 py-1 rounded-lg text-xs font-bold ${logs[s.id]?'bg-green-600 text-white':'bg-slate-100'}">${logs[s.id]?'حضر ✅':'تحضير'}</button>
                     </div>`).join('');
 
-                // قائمة الغياب
                 const absents = allStudents.filter(s => !logs[s.id]);
                 document.getElementById('absenceList').innerHTML = absents.map(s => `
                     <div class="glass-card p-4 flex justify-between items-center border-l-4 border-red-500">
                         <p class="font-bold text-sm">${s.name}</p>
-                        <button onclick="sendWA('${s.parentPhone}', '${s.name}')" class="text-green-600 font-bold text-[10px] bg-green-50 px-2 py-1 rounded border border-green-200">تبليغ غياب 📲</button>
+                        <button onclick="sendWA('${s.parentPhone}', '${s.name}', 'absence')" class="text-green-600 font-bold text-[10px] bg-green-50 px-2 py-1 rounded border border-green-200">تبليغ غياب 📲</button>
                     </div>`).join('');
             });
         }
@@ -205,14 +272,7 @@
             else db.ref(`attendance/${d}/${id}`).set({ name, time: new Date().toLocaleTimeString('ar-EG') });
         }
 
-        function sendWA(phone, name) {
-            if(!phone) return alert("لا يوجد رقم!");
-            let cleanPhone = phone.toString().replace(/\D/g, '');
-            if(!cleanPhone.startsWith('2')) cleanPhone = '2' + cleanPhone;
-            const msg = encodeURIComponent(`مستر يحيى النوبي: نود إبلاغكم بغياب الطالب (${name}) عن حصة الفيزياء اليوم.`);
-            window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
-        }
-
+        // --- وظائف مساعدة ---
         async function showInfo(id) {
             const s = allStudents.find(st => st.id == id);
             document.getElementById('infoModal').classList.remove('hidden');
@@ -225,11 +285,11 @@
 
             document.getElementById('infoContent').innerHTML = `
                 <h2 class="text-xl font-black text-blue-800 mb-4 text-center">${s.name}</h2>
-                <div class="bg-blue-50 p-4 rounded-xl space-y-2 font-bold text-sm">
+                <div class="bg-blue-50 p-4 rounded-xl space-y-2 font-bold text-sm border border-blue-100">
                     <p>🆔 الكود: ${s.id}</p>
-                    <p>📱 موبايل الطالب: ${s.phone || '---'}</p>
-                    <p>👨‍💼 ولي الأمر: ${s.parentPhone || '---'}</p>
-                    <p>📍 السنتر: ${s.center || '---'}</p>
+                    <p>📱 الطالب: ${s.phone || 'غير مسجل'}</p>
+                    <p>👨‍💼 ولي الأمر: ${s.parentPhone || 'غير مسجل'}</p>
+                    <p>📍 السنتر: ${s.center || 'غير محدد'}</p>
                     <p class="text-blue-600">✅ إجمالي الحضور: ${attCount}</p>
                 </div>`;
         }
@@ -262,29 +322,9 @@
             setTimeout(() => { window.print(); pArea.classList.add('hidden'); }, 500);
         }
 
-        function searchGradeStudent(q) {
-            const res = allStudents.filter(s => s.name.includes(q));
-            const div = document.getElementById('gradeSearchResults');
-            div.innerHTML = res.map(s => `<div onclick="selectStdGrade('${s.id}','${s.name}')" class="p-3 border-b cursor-pointer hover:bg-gray-100">${s.name}</div>`).join('');
-            div.classList.toggle('hidden', !q);
-        }
-        function selectStdGrade(id, n) {
-            document.getElementById('selectedGradeStdId').value = id;
-            document.getElementById('gradeSearchName').value = n;
-            document.getElementById('gradeSearchResults').classList.add('hidden');
-        }
-        function saveGrade() {
-            const id = document.getElementById('selectedGradeStdId').value;
-            const score = document.getElementById('gradeValue').value;
-            const max = document.getElementById('maxGrade').value;
-            if(!id || !score) return alert("أكمل البيانات");
-            db.ref('grades/'+Date.now()).set({ stdId: id, score, max, exam: document.getElementById('examName').value });
-            alert("تم الحفظ");
-        }
-
         function closeInfoModal() { document.getElementById('infoModal').classList.add('hidden'); }
         function searchStudents(q) { updateUI(allStudents.filter(s => s.name.includes(q) || s.id.includes(q))); }
-        function deleteStd(id) { if(confirm('حذف؟')) db.ref('students/'+id).remove(); }
+        function deleteStd(id) { if(confirm('هل أنت متأكد من حذف الطالب نهائياً؟')) db.ref('students/'+id).remove(); }
         document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
     </script>
 </body>

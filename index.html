@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yahia El-Nobi | Physics Dashboard v7.0</title>
+    <title>Yahia El-Nobi | Physics Dashboard v7.5</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -26,15 +26,13 @@
             #printArea, #printArea * { visibility: visible; }
             #printArea { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; justify-content: center; padding-top: 50px; }
         }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #1e40af; border-radius: 10px; }
     </style>
 </head>
-<body class="transition-all duration-300">
+<body>
 
     <div id="loginModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900">
         <div class="glass-card p-10 shadow-2xl w-full max-w-md text-center border-t-8 border-amber-500">
-            <img src="https://i.postimg.cc/vgWdFN6t/536797835-1338608134647355-1757609927020787797-n.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-white" alt="Yahia">
+            <img src="https://i.postimg.cc/vgWdFN6t/536797835-1338608134647355-1757609927020787797-n.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-white">
             <h1 class="text-2xl font-black text-slate-800 mb-6">مستر يحيى النوبي</h1>
             <input type="password" id="sysPass" placeholder="كلمة المرور" class="w-full p-4 rounded-xl border text-center mb-4 outline-none font-bold">
             <button onclick="checkLogin()" class="w-full bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg">دخول</button>
@@ -47,7 +45,7 @@
                 <img src="https://i.postimg.cc/vgWdFN6t/536797835-1338608134647355-1757609927020787797-n.jpg" class="w-12 h-12 rounded-xl border-2 border-amber-400">
                 <h2 class="font-black text-slate-800">مستر يحيى النوبي</h2>
             </div>
-            <button onclick="startScanner()" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-bold text-xs shadow-md">📷 سكانر سريع</button>
+            <button onclick="startScanner()" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-bold text-xs">📷 سكانر</button>
         </header>
 
         <main class="px-4 lg:max-w-7xl mx-auto mt-6">
@@ -55,23 +53,23 @@
                 <div class="glass-card p-6 mb-6 shadow-sm">
                     <h3 class="font-black mb-4 flex items-center gap-2"><span>➕</span> إضافة طالب جديد</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-                        <input type="text" id="stdName" placeholder="اسم الطالب" class="p-3 rounded-xl border outline-none font-bold">
-                        <input type="tel" id="stdPhone" placeholder="موبايل الطالب" class="p-3 rounded-xl border outline-none font-bold">
-                        <input type="tel" id="parentPhone" placeholder="رقم ولي الأمر" class="p-3 rounded-xl border outline-none font-bold">
-                        <input type="text" id="stdCenter" placeholder="السنتر / المجموعة" class="p-3 rounded-xl border outline-none font-bold">
-                        <button onclick="addStudent()" class="bg-slate-800 text-white font-bold rounded-xl p-3 hover:bg-black">حفظ ✅</button>
+                        <input type="text" id="stdName" placeholder="اسم الطالب" class="p-3 rounded-xl border outline-none font-bold text-right">
+                        <input type="tel" id="stdPhone" placeholder="موبايل الطالب" class="p-3 rounded-xl border outline-none font-bold text-center">
+                        <input type="tel" id="parentPhone" placeholder="رقم ولي الأمر" class="p-3 rounded-xl border outline-none font-bold text-center">
+                        <input type="text" id="stdCenter" placeholder="السنتر / المجموعة" class="p-3 rounded-xl border outline-none font-bold text-right">
+                        <button onclick="addStudent()" class="bg-slate-800 text-white font-bold rounded-xl p-3">حفظ ✅</button>
                     </div>
                 </div>
-                <input type="text" onkeyup="searchStudents(this.value)" placeholder="🔍 ابحث بالاسم أو الكود..." class="w-full p-5 rounded-2xl glass-card mb-6 shadow-sm border-none outline-none font-bold">
-                <div id="studentsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+                <input type="text" onkeyup="searchStudents(this.value)" placeholder="🔍 ابحث بالاسم أو الكود..." class="w-full p-5 rounded-2xl glass-card mb-6 shadow-sm border-none outline-none font-bold text-right">
+                <div id="studentsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-right"></div>
             </section>
 
             <section id="attendance" class="tab-content">
                 <div class="glass-card p-6 mb-6 shadow-sm text-center">
                     <h2 class="font-black text-xl mb-4 text-blue-800">دفتر الحضور اليومي 📝</h2>
                     <input type="date" id="attDate" onchange="loadAttendance()" class="p-3 rounded-xl border font-bold text-center bg-blue-50 text-blue-800 mb-4">
-                    <input type="text" id="attSearchInput" onkeyup="filterAttendanceList(this.value)" placeholder="🔍 ابحث بالاسم أو الكود للتحضير اليدوي..." class="w-full p-4 rounded-xl border-2 border-blue-100 outline-none font-bold text-center mb-6">
-                    <div id="attList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-6"></div>
+                    <input type="text" id="attSearchInput" onkeyup="filterAttendanceList()" placeholder="🔍 ابحث بالاسم أو الكود للتحضير اليدوي..." class="w-full p-4 rounded-xl border-2 border-blue-100 outline-none font-bold text-center mb-6">
+                    <div id="attList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-6 text-right"></div>
                 </div>
             </section>
 
@@ -95,8 +93,8 @@
             </section>
 
             <section id="reports" class="tab-content">
-                <h2 class="font-black text-red-600 text-xl italic mb-4">قائمة الغياب اليوم 🚫</h2>
-                <div id="absenceList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <h2 class="font-black text-red-600 text-xl italic mb-4 text-right">قائمة الغياب اليوم 🚫</h2>
+                <div id="absenceList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-right"></div>
             </section>
         </main>
 
@@ -109,15 +107,10 @@
     </div>
 
     <div id="infoModal" class="hidden fixed inset-0 z-[1000] bg-slate-900/95 flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
-            <button onclick="closeInfoModal()" class="sticky top-0 float-left bg-red-500 text-white w-8 h-8 rounded-full z-50">&times;</button>
+        <div class="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative text-right">
+            <button onclick="closeInfoModal()" class="float-left bg-red-500 text-white w-8 h-8 rounded-full">&times;</button>
             <div id="infoContent"></div>
         </div>
-    </div>
-
-    <div id="scanModal" class="hidden fixed inset-0 z-[10000] bg-black/90 flex flex-col items-center justify-center p-4">
-        <div id="reader" class="w-full max-w-sm rounded-3xl overflow-hidden"></div>
-        <button onclick="stopScanner()" class="mt-10 bg-white px-12 py-4 rounded-full font-black">إغلاق</button>
     </div>
 
     <div id="printArea" class="hidden"></div>
@@ -135,7 +128,6 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let allStudents = [];
-        let html5QrCode = null;
 
         function checkLogin() {
             if(document.getElementById('sysPass').value === "1234") {
@@ -157,13 +149,13 @@
         function updateUI(filtered = null) {
             const list = filtered || allStudents;
             document.getElementById('studentsGrid').innerHTML = list.map(s => `
-                <div class="glass-card p-5 border-t-4 border-blue-600 relative shadow-sm text-center">
+                <div class="glass-card p-5 border-t-4 border-blue-600 relative text-center">
                     <button onclick="showInfo('${s.id}')" class="absolute top-2 left-2 bg-blue-100 text-blue-700 w-7 h-7 rounded-full font-black text-xs">i</button>
                     <div id="qr-${s.id}" class="mx-auto w-fit bg-white p-1 rounded-lg mb-2 border"></div>
-                    <h4 class="font-black text-sm mb-1">${s.name}</h4>
-                    <p class="text-[10px] text-blue-600 font-bold mb-3 italic">ID: ${s.id}</p>
+                    <h4 class="font-black text-sm line-clamp-1">${s.name}</h4>
+                    <p class="text-[10px] text-blue-600 font-bold mb-3">ID: ${s.id}</p>
                     <div class="flex gap-1">
-                        <button onclick="printID('${s.id}')" class="flex-1 bg-slate-800 text-white py-2 rounded-lg text-[9px] font-bold">🖨️ الكارت</button>
+                        <button onclick="printID('${s.id}')" class="flex-1 bg-slate-800 text-white py-2 rounded-lg text-[9px] font-bold">كارت</button>
                         <button onclick="deleteStd('${s.id}')" class="bg-red-50 text-red-500 px-2 rounded-lg text-xs">🗑️</button>
                     </div>
                 </div>`).join('');
@@ -185,21 +177,28 @@
             Object.values(gradeData).reverse().forEach(g => { if(g.stdId == id) gradeHtml += `<div class="p-2 border-b text-xs">📝 ${g.exam}: <span class="font-bold text-blue-700">${g.score}/${g.max}</span></div>`; });
 
             document.getElementById('infoContent').innerHTML = `
-                <div id="pdf-report" class="text-right">
-                    <h2 class="text-xl font-black text-blue-800 border-b-2 pb-2 mb-4 text-center">${s.name}</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-blue-50 p-4 rounded-xl mb-4 font-bold text-sm">
-                        <p>🆔 الكود: <span class="text-blue-700">${s.id}</span></p>
-                        <p>📍 السنتر: <span class="text-blue-700">${s.center || 'غير محدد'}</span></p>
-                        <p>📱 موبايل الطالب: <span class="text-green-700" dir="ltr">${s.phone || 'لا يوجد'}</span></p>
-                        <p>👨‍💼 ولي الأمر: <span class="text-green-700" dir="ltr">${s.parentPhone || 'لا يوجد'}</span></p>
-                        <p>✅ عدد الحضور: <span class="text-blue-700">${attCount}</span></p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><h3 class="font-bold text-green-700 mb-2 border-r-4 border-green-700 pr-2">📊 الدرجات</h3>${gradeHtml || "لا يوجد"}</div>
-                        <div><h3 class="font-bold text-amber-700 mb-2 border-r-4 border-amber-700 pr-2">📅 الحضور</h3>${attHtml || "لا يوجد"}</div>
-                    </div>
+                <h2 class="text-xl font-black text-blue-800 border-b-2 pb-2 mb-4 text-center">${s.name}</h2>
+                <div class="bg-blue-50 p-4 rounded-xl mb-4 font-bold text-sm space-y-2">
+                    <p>🆔 الكود: <span class="text-blue-700">${s.id}</span></p>
+                    <p>📍 السنتر: <span class="text-blue-700">${s.center || '---'}</span></p>
+                    <p>📱 موبايل الطالب: <span class="text-slate-700">${s.phone || 'غير مسجل'}</span></p>
+                    <p>👨‍💼 ولي الأمر: <span class="text-green-700">${s.parentPhone || 'غير مسجل'}</span></p>
+                    <p>✅ عدد الحضور: <span class="text-blue-700">${attCount}</span></p>
                 </div>
-                <button onclick="downloadPDF('${s.name}')" class="w-full bg-slate-800 text-white py-3 mt-6 rounded-xl font-bold">حفظ كتقرير PDF</button>`;
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><h3 class="font-bold text-green-700 mb-2 border-r-4 border-green-700 pr-2 italic">الدرجات</h3>${gradeHtml || "لا يوجد"}</div>
+                    <div><h3 class="font-bold text-amber-700 mb-2 border-r-4 border-amber-700 pr-2 italic">الحضور</h3>${attHtml || "لا يوجد"}</div>
+                </div>`;
+        }
+
+        // دالة إرسال واتساب المحدثة
+        function sendWA(phone, name) {
+            if(!phone || phone === "") { alert("رقم ولي الأمر غير مسجل لهذا الطالب!"); return; }
+            let cleanPhone = phone.toString().replace(/\D/g, '');
+            if(!cleanPhone.startsWith('2')) cleanPhone = '2' + cleanPhone;
+            const msg = `مستر يحيى النوبي: نود إبلاغ سيادتكم بغياب الطالب/ة (${name}) عن حصة الفيزياء اليوم.`;
+            const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
+            window.open(waUrl, '_blank');
         }
 
         function loadAttendance() {
@@ -213,26 +212,17 @@
                     const isP = !!logs[s.id];
                     return `<div class="glass-card p-4 flex justify-between items-center border-r-4 ${isP ? 'border-green-500' : 'border-slate-200'}">
                         <div><p class="font-black text-sm">${s.name}</p><p class="text-[9px] text-blue-500">ID: ${s.id}</p></div>
-                        <button onclick="toggleAtt('${s.id}','${s.name}',${isP})" class="px-4 py-1 rounded-lg text-xs font-bold ${isP ? 'bg-green-600 text-white' : 'bg-slate-100'}">${isP ? 'حضر ✅' : 'تحضير'}</button>
+                        <button onclick="toggleAtt('${s.id}','${s.name}',${isP})" class="px-4 py-1 rounded-lg text-xs font-bold ${isP ? 'bg-green-600 text-white' : 'bg-slate-100'}">${isP ? 'حضر' : 'تحضير'}</button>
                     </div>`;
                 }).join('');
 
                 const absents = allStudents.filter(s => !logs[s.id]);
                 document.getElementById('absenceList').innerHTML = absents.map(s => `
-                    <div class="glass-card p-4 flex justify-between items-center border-l-4 border-red-500">
-                        <p class="font-bold text-sm">${s.name}</p>
-                        <button onclick="sendWA('${s.parentPhone}', '${s.name}')" class="text-green-600 font-bold text-xs bg-green-50 px-3 py-1 rounded-lg">تبليغ غياب 📲</button>
+                    <div class="glass-card p-4 flex justify-between items-center border-l-4 border-red-500 shadow-sm">
+                        <div><p class="font-bold text-sm">${s.name}</p><p class="text-[9px] text-gray-400">ولي الأمر: ${s.parentPhone}</p></div>
+                        <button onclick="sendWA('${s.parentPhone}', '${s.name}')" class="text-green-600 font-bold text-xs bg-green-50 px-3 py-2 rounded-lg border border-green-200">تبليغ غياب 📲</button>
                     </div>`).join('');
             });
-        }
-
-        function sendWA(phone, name) {
-            // تنظيف الرقم من أي مسافات أو رموز
-            let cleanPhone = phone.replace(/\D/g, '');
-            // إضافة كود مصر إذا لم يكن موجوداً
-            if(!cleanPhone.startsWith('2')) cleanPhone = '2' + cleanPhone;
-            const msg = `مستر يحيى النوبي: نود إبلاغ سيادتكم بغياب الطالب/ة (${name}) عن حصة الفيزياء اليوم.`;
-            window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function toggleAtt(id, name, isP) {

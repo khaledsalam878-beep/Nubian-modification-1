@@ -3,88 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yahia El-Nobi | Physics Dashboard v7.5</title>
+    <title>Yahia El-Nobi | Physics Dashboard v8.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'Cairo', sans-serif; background: #f8fafc; }
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 1.5rem; border: 1px solid rgba(0,0,0,0.05); }
-        .tab-content { display: none; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .nav-btn.active { background: #1e40af; color: white; transform: scale(1.05); }
         
         @media print {
             body * { visibility: hidden; }
             #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; justify-content: center; padding-top: 50px; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; display: flex !important; justify-content: center; }
         }
     </style>
 </head>
-<body>
+<body class="pb-24">
 
     <div id="loginModal" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900">
         <div class="glass-card p-10 shadow-2xl w-full max-w-md text-center border-t-8 border-amber-500">
             <img src="https://i.postimg.cc/vgWdFN6t/536797835-1338608134647355-1757609927020787797-n.jpg" class="w-24 h-24 rounded-full mx-auto mb-4 border-2 border-white">
-            <h1 class="text-2xl font-black text-slate-800 mb-6">مستر يحيى النوبي</h1>
+            <h1 class="text-2xl font-black text-slate-800 mb-6 text-center">مستر يحيى النوبي</h1>
             <input type="password" id="sysPass" placeholder="كلمة المرور" class="w-full p-4 rounded-xl border text-center mb-4 outline-none font-bold">
             <button onclick="checkLogin()" class="w-full bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg">دخول</button>
         </div>
     </div>
 
-    <div id="appContainer" class="opacity-0 transition-opacity duration-700 pb-32">
-        <header class="p-4 lg:max-w-7xl mx-auto flex justify-between items-center glass-card mt-4 shadow-sm">
+    <div id="appContainer" class="opacity-0 transition-opacity duration-700">
+        <header class="p-4 lg:max-w-7xl mx-auto flex justify-between items-center glass-card mt-4 shadow-sm mx-4">
             <div class="flex items-center gap-3">
                 <img src="https://i.postimg.cc/vgWdFN6t/536797835-1338608134647355-1757609927020787797-n.jpg" class="w-12 h-12 rounded-xl border-2 border-amber-400">
                 <h2 class="font-black text-slate-800">مستر يحيى النوبي</h2>
             </div>
-            <button onclick="startScanner()" class="bg-blue-700 text-white px-5 py-3 rounded-xl font-bold text-xs">📷 سكانر</button>
+            <button onclick="startScanner()" class="bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-xs">📷 سكانر</button>
         </header>
 
         <main class="px-4 lg:max-w-7xl mx-auto mt-6">
+            
             <section id="students" class="tab-content active">
-                <div class="glass-card p-6 mb-6 shadow-sm">
-                    <h3 class="font-black mb-4 flex items-center gap-2"><span>➕</span> إضافة طالب جديد</h3>
+                <div class="glass-card p-6 mb-6">
+                    <h3 class="font-black mb-4">➕ إضافة طالب</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-                        <input type="text" id="stdName" placeholder="اسم الطالب" class="p-3 rounded-xl border outline-none font-bold text-right">
-                        <input type="tel" id="stdPhone" placeholder="موبايل الطالب" class="p-3 rounded-xl border outline-none font-bold text-center">
-                        <input type="tel" id="parentPhone" placeholder="رقم ولي الأمر" class="p-3 rounded-xl border outline-none font-bold text-center">
-                        <input type="text" id="stdCenter" placeholder="السنتر / المجموعة" class="p-3 rounded-xl border outline-none font-bold text-right">
+                        <input type="text" id="stdName" placeholder="الاسم" class="p-3 rounded-xl border font-bold">
+                        <input type="tel" id="stdPhone" placeholder="موبايل الطالب" class="p-3 rounded-xl border text-center font-bold">
+                        <input type="tel" id="parentPhone" placeholder="رقم ولي الأمر" class="p-3 rounded-xl border text-center font-bold">
+                        <input type="text" id="stdCenter" placeholder="المجموعة" class="p-3 rounded-xl border font-bold">
                         <button onclick="addStudent()" class="bg-slate-800 text-white font-bold rounded-xl p-3">حفظ ✅</button>
                     </div>
                 </div>
-                <input type="text" onkeyup="searchStudents(this.value)" placeholder="🔍 ابحث بالاسم أو الكود..." class="w-full p-5 rounded-2xl glass-card mb-6 shadow-sm border-none outline-none font-bold text-right">
-                <div id="studentsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-right"></div>
+                <input type="text" onkeyup="searchStudents(this.value)" placeholder="🔍 ابحث هنا..." class="w-full p-4 rounded-xl glass-card mb-6 outline-none font-bold border-none shadow-sm">
+                <div id="studentsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
             </section>
 
             <section id="attendance" class="tab-content">
-                <div class="glass-card p-6 mb-6 shadow-sm text-center">
-                    <h2 class="font-black text-xl mb-4 text-blue-800">دفتر الحضور اليومي 📝</h2>
-                    <input type="date" id="attDate" onchange="loadAttendance()" class="p-3 rounded-xl border font-bold text-center bg-blue-50 text-blue-800 mb-4">
-                    <input type="text" id="attSearchInput" onkeyup="filterAttendanceList()" placeholder="🔍 ابحث بالاسم أو الكود للتحضير اليدوي..." class="w-full p-4 rounded-xl border-2 border-blue-100 outline-none font-bold text-center mb-6">
-                    <div id="attList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mt-6 text-right"></div>
+                <div class="glass-card p-6 shadow-sm text-center">
+                    <h2 class="font-black text-xl mb-4">دفتر الحضور 📅</h2>
+                    <input type="date" id="attDate" onchange="loadAttendance()" class="p-3 rounded-xl border font-bold text-center bg-blue-50 mb-4">
+                    <input type="text" id="attSearchInput" onkeyup="loadAttendance()" placeholder="🔍 ابحث بالاسم أو الكود للتحضير اليدوي..." class="w-full p-4 rounded-xl border-2 border-blue-100 outline-none font-bold text-center mb-6">
+                    <div id="attList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
             </section>
 
             <section id="grades" class="tab-content">
-                <div class="glass-card p-8 max-w-xl mx-auto shadow-xl border-t-8 border-green-500">
-                    <h2 class="text-2xl font-black mb-6 text-center text-green-700">رصد نتيجة اختبار 📊</h2>
-                    <div class="space-y-4">
-                        <div class="relative">
-                            <input type="text" id="gradeSearchName" onkeyup="searchGradeStudent(this.value)" placeholder="ابحث باسم الطالب..." class="w-full p-4 rounded-xl border outline-none font-bold text-center">
-                            <div id="gradeSearchResults" class="absolute z-50 w-full bg-white shadow-2xl rounded-xl mt-1 hidden border max-h-48 overflow-y-auto"></div>
-                            <input type="hidden" id="selectedGradeStdId">
-                        </div>
-                        <input type="text" id="examName" placeholder="عنوان الاختبار" class="w-full p-4 rounded-xl border text-center font-bold">
-                        <div class="flex gap-4">
-                            <input type="number" id="gradeValue" placeholder="الدرجة" class="w-full p-4 rounded-xl border text-center font-black text-blue-700">
+                <div class="glass-card p-8 max-w-xl mx-auto border-t-8 border-green-500">
+                    <h2 class="text-2xl font-black mb-6 text-center">رصد الدرجات 📊</h2>
+                    <div class="space-y-4 text-center">
+                        <input type="text" id="gradeSearchName" onkeyup="searchGradeStudent(this.value)" placeholder="ابحث باسم الطالب..." class="w-full p-4 rounded-xl border font-bold text-center">
+                        <div id="gradeSearchResults" class="bg-white shadow-xl rounded-xl hidden border max-h-40 overflow-y-auto"></div>
+                        <input type="hidden" id="selectedGradeStdId">
+                        <input type="text" id="examName" placeholder="عنوان الامتحان" class="w-full p-4 rounded-xl border text-center">
+                        <div class="flex gap-2">
+                            <input type="number" id="gradeValue" placeholder="الدرجة" class="w-full p-4 rounded-xl border text-center font-black">
                             <input type="number" id="maxGrade" placeholder="من" class="w-24 p-4 rounded-xl border text-center font-bold">
                         </div>
                         <button onclick="saveGrade()" class="w-full bg-green-600 text-white font-black py-4 rounded-xl shadow-lg">حفظ وإرسال 📱</button>
@@ -93,22 +91,23 @@
             </section>
 
             <section id="reports" class="tab-content">
-                <h2 class="font-black text-red-600 text-xl italic mb-4 text-right">قائمة الغياب اليوم 🚫</h2>
-                <div id="absenceList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-right"></div>
+                <h2 class="font-black text-red-600 text-xl mb-4">قائمة الغياب 🚫</h2>
+                <div id="absenceList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </section>
+
         </main>
 
-        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-md glass-card p-2 shadow-2xl z-50 flex justify-between">
-            <button onclick="showTab('students')" id="btn-students" class="nav-btn active p-3 rounded-xl flex-1 flex flex-col items-center"><span>👥</span><span class="text-[9px] font-bold">الطلاب</span></button>
-            <button onclick="showTab('attendance')" id="btn-attendance" class="nav-btn p-3 rounded-xl flex-1 flex flex-col items-center"><span>📅</span><span class="text-[9px] font-bold">الحضور</span></button>
-            <button onclick="showTab('grades')" id="btn-grades" class="nav-btn p-3 rounded-xl flex-1 flex flex-col items-center"><span>📊</span><span class="text-[9px] font-bold">الدرجات</span></button>
-            <button onclick="showTab('reports')" id="btn-reports" class="nav-btn p-3 rounded-xl flex-1 flex flex-col items-center"><span>🚫</span><span class="text-[9px] font-bold">الغياب</span></button>
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-md glass-card p-2 shadow-2xl z-50 flex justify-around border-t border-white">
+            <button onclick="showTab('students')" id="btn-students" class="nav-btn active p-3 rounded-xl flex-1 flex flex-col items-center"><span>👥</span><span class="text-[10px] font-bold">الطلاب</span></button>
+            <button onclick="showTab('attendance')" id="btn-attendance" class="nav-btn p-3 rounded-xl flex-1 flex flex-col items-center"><span>📅</span><span class="text-[10px] font-bold">الحضور</span></button>
+            <button onclick="showTab('grades')" id="btn-grades" class="nav-btn p-3 rounded-xl flex-1 flex flex-col items-center"><span>📊</span><span class="text-[10px] font-bold">الدرجات</span></button>
+            <button onclick="showTab('reports')" id="btn-reports" class="nav-btn p-3 rounded-xl flex-1 flex flex-col items-center"><span>🚫</span><span class="text-[10px] font-bold">الغياب</span></button>
         </nav>
     </div>
 
-    <div id="infoModal" class="hidden fixed inset-0 z-[1000] bg-slate-900/95 flex items-center justify-center p-4">
-        <div class="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative text-right">
-            <button onclick="closeInfoModal()" class="float-left bg-red-500 text-white w-8 h-8 rounded-full">&times;</button>
+    <div id="infoModal" class="hidden fixed inset-0 z-[1000] bg-black/80 flex items-center justify-center p-4">
+        <div class="glass-card w-full max-w-xl p-6 relative">
+            <button onclick="closeInfoModal()" class="float-left text-red-500 font-bold text-2xl">&times;</button>
             <div id="infoContent"></div>
         </div>
     </div>
@@ -141,26 +140,77 @@
             document.getElementById('appContainer').style.opacity = '1';
         }
 
+        // جلب البيانات الأساسية
         db.ref('students').on('value', (snap) => {
             allStudents = snap.val() ? Object.values(snap.val()) : [];
             updateUI();
         });
 
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.getElementById('btn-'+id).classList.add('active');
+            if(id === 'attendance' || id === 'reports') loadAttendance();
+        }
+
         function updateUI(filtered = null) {
             const list = filtered || allStudents;
-            document.getElementById('studentsGrid').innerHTML = list.map(s => `
-                <div class="glass-card p-5 border-t-4 border-blue-600 relative text-center">
-                    <button onclick="showInfo('${s.id}')" class="absolute top-2 left-2 bg-blue-100 text-blue-700 w-7 h-7 rounded-full font-black text-xs">i</button>
-                    <div id="qr-${s.id}" class="mx-auto w-fit bg-white p-1 rounded-lg mb-2 border"></div>
-                    <h4 class="font-black text-sm line-clamp-1">${s.name}</h4>
-                    <p class="text-[10px] text-blue-600 font-bold mb-3">ID: ${s.id}</p>
+            const grid = document.getElementById('studentsGrid');
+            grid.innerHTML = list.map(s => `
+                <div class="glass-card p-4 text-center relative border-t-4 border-blue-600">
+                    <button onclick="showInfo('${s.id}')" class="absolute top-2 left-2 bg-blue-100 text-blue-800 w-7 h-7 rounded-full font-bold text-xs">i</button>
+                    <div id="qr-${s.id}" class="mx-auto w-fit bg-white p-1 border mb-2 rounded"></div>
+                    <h4 class="font-black text-sm truncate">${s.name}</h4>
+                    <p class="text-[10px] text-gray-500 mb-2">ID: ${s.id}</p>
                     <div class="flex gap-1">
-                        <button onclick="printID('${s.id}')" class="flex-1 bg-slate-800 text-white py-2 rounded-lg text-[9px] font-bold">كارت</button>
-                        <button onclick="deleteStd('${s.id}')" class="bg-red-50 text-red-500 px-2 rounded-lg text-xs">🗑️</button>
+                        <button onclick="printID('${s.id}')" class="flex-1 bg-slate-800 text-white py-1 rounded text-[10px]">كارت</button>
+                        <button onclick="deleteStd('${s.id}')" class="bg-red-50 text-red-500 px-2 rounded">🗑️</button>
                     </div>
                 </div>`).join('');
-            list.forEach(s => { const el = document.getElementById(`qr-${s.id}`); if(el) { el.innerHTML = ''; new QRCode(el, { text: String(s.id), width: 70, height: 70 }); } });
-            loadAttendance();
+            list.forEach(s => { 
+                const el = document.getElementById(`qr-${s.id}`);
+                if(el) { el.innerHTML = ''; new QRCode(el, { text: String(s.id), width: 60, height: 60 }); }
+            });
+        }
+
+        function loadAttendance() {
+            const date = document.getElementById('attDate').value;
+            const search = document.getElementById('attSearchInput').value.toLowerCase();
+            
+            db.ref(`attendance/${date}`).on('value', snap => {
+                const logs = snap.val() || {};
+                const filtered = allStudents.filter(s => s.name.toLowerCase().includes(search) || String(s.id).includes(search));
+                
+                // قائمة التحضير
+                document.getElementById('attList').innerHTML = filtered.map(s => `
+                    <div class="glass-card p-4 flex justify-between items-center ${logs[s.id]?'border-r-4 border-green-500':''}">
+                        <div><p class="font-bold text-sm">${s.name}</p><p class="text-[9px] text-blue-500">ID: ${s.id}</p></div>
+                        <button onclick="toggleAtt('${s.id}','${s.name}',${!!logs[s.id]})" class="px-4 py-1 rounded-lg text-xs font-bold ${logs[s.id]?'bg-green-600 text-white':'bg-slate-100'}">${logs[s.id]?'حضر ✅':'تحضير'}</button>
+                    </div>`).join('');
+
+                // قائمة الغياب
+                const absents = allStudents.filter(s => !logs[s.id]);
+                document.getElementById('absenceList').innerHTML = absents.map(s => `
+                    <div class="glass-card p-4 flex justify-between items-center border-l-4 border-red-500">
+                        <p class="font-bold text-sm">${s.name}</p>
+                        <button onclick="sendWA('${s.parentPhone}', '${s.name}')" class="text-green-600 font-bold text-[10px] bg-green-50 px-2 py-1 rounded border border-green-200">تبليغ غياب 📲</button>
+                    </div>`).join('');
+            });
+        }
+
+        function toggleAtt(id, name, isP) {
+            const d = document.getElementById('attDate').value;
+            if(isP) db.ref(`attendance/${d}/${id}`).remove();
+            else db.ref(`attendance/${d}/${id}`).set({ name, time: new Date().toLocaleTimeString('ar-EG') });
+        }
+
+        function sendWA(phone, name) {
+            if(!phone) return alert("لا يوجد رقم!");
+            let cleanPhone = phone.toString().replace(/\D/g, '');
+            if(!cleanPhone.startsWith('2')) cleanPhone = '2' + cleanPhone;
+            const msg = encodeURIComponent(`مستر يحيى النوبي: نود إبلاغكم بغياب الطالب (${name}) عن حصة الفيزياء اليوم.`);
+            window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${msg}`, '_blank');
         }
 
         async function showInfo(id) {
@@ -170,104 +220,71 @@
             const attData = attSnap.val() || {};
             const gradeData = gradeSnap.val() || {};
             
-            let attHtml = ""; let attCount = 0;
-            Object.keys(attData).reverse().forEach(d => { if(attData[d][id]) { attHtml += `<div class="p-2 border-b text-xs">📅 ${d} | ⏰ ${attData[d][id].time}</div>`; attCount++; } });
-            
-            let gradeHtml = "";
-            Object.values(gradeData).reverse().forEach(g => { if(g.stdId == id) gradeHtml += `<div class="p-2 border-b text-xs">📝 ${g.exam}: <span class="font-bold text-blue-700">${g.score}/${g.max}</span></div>`; });
+            let attCount = 0;
+            Object.keys(attData).forEach(d => { if(attData[d][id]) attCount++; });
 
             document.getElementById('infoContent').innerHTML = `
-                <h2 class="text-xl font-black text-blue-800 border-b-2 pb-2 mb-4 text-center">${s.name}</h2>
-                <div class="bg-blue-50 p-4 rounded-xl mb-4 font-bold text-sm space-y-2">
-                    <p>🆔 الكود: <span class="text-blue-700">${s.id}</span></p>
-                    <p>📍 السنتر: <span class="text-blue-700">${s.center || '---'}</span></p>
-                    <p>📱 موبايل الطالب: <span class="text-slate-700">${s.phone || 'غير مسجل'}</span></p>
-                    <p>👨‍💼 ولي الأمر: <span class="text-green-700">${s.parentPhone || 'غير مسجل'}</span></p>
-                    <p>✅ عدد الحضور: <span class="text-blue-700">${attCount}</span></p>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><h3 class="font-bold text-green-700 mb-2 border-r-4 border-green-700 pr-2 italic">الدرجات</h3>${gradeHtml || "لا يوجد"}</div>
-                    <div><h3 class="font-bold text-amber-700 mb-2 border-r-4 border-amber-700 pr-2 italic">الحضور</h3>${attHtml || "لا يوجد"}</div>
+                <h2 class="text-xl font-black text-blue-800 mb-4 text-center">${s.name}</h2>
+                <div class="bg-blue-50 p-4 rounded-xl space-y-2 font-bold text-sm">
+                    <p>🆔 الكود: ${s.id}</p>
+                    <p>📱 موبايل الطالب: ${s.phone || '---'}</p>
+                    <p>👨‍💼 ولي الأمر: ${s.parentPhone || '---'}</p>
+                    <p>📍 السنتر: ${s.center || '---'}</p>
+                    <p class="text-blue-600">✅ إجمالي الحضور: ${attCount}</p>
                 </div>`;
         }
 
-        // دالة إرسال واتساب المحدثة
-        function sendWA(phone, name) {
-            if(!phone || phone === "") { alert("رقم ولي الأمر غير مسجل لهذا الطالب!"); return; }
-            let cleanPhone = phone.toString().replace(/\D/g, '');
-            if(!cleanPhone.startsWith('2')) cleanPhone = '2' + cleanPhone;
-            const msg = `مستر يحيى النوبي: نود إبلاغ سيادتكم بغياب الطالب/ة (${name}) عن حصة الفيزياء اليوم.`;
-            const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
-            window.open(waUrl, '_blank');
-        }
-
-        function loadAttendance() {
-            const date = document.getElementById('attDate').value;
-            const searchVal = document.getElementById('attSearchInput').value.toLowerCase();
-            db.ref(`attendance/${date}`).on('value', snap => {
-                const logs = snap.val() || {};
-                const filtered = allStudents.filter(s => s.name.toLowerCase().includes(searchVal) || String(s.id).includes(searchVal));
-                
-                document.getElementById('attList').innerHTML = filtered.map(s => {
-                    const isP = !!logs[s.id];
-                    return `<div class="glass-card p-4 flex justify-between items-center border-r-4 ${isP ? 'border-green-500' : 'border-slate-200'}">
-                        <div><p class="font-black text-sm">${s.name}</p><p class="text-[9px] text-blue-500">ID: ${s.id}</p></div>
-                        <button onclick="toggleAtt('${s.id}','${s.name}',${isP})" class="px-4 py-1 rounded-lg text-xs font-bold ${isP ? 'bg-green-600 text-white' : 'bg-slate-100'}">${isP ? 'حضر' : 'تحضير'}</button>
-                    </div>`;
-                }).join('');
-
-                const absents = allStudents.filter(s => !logs[s.id]);
-                document.getElementById('absenceList').innerHTML = absents.map(s => `
-                    <div class="glass-card p-4 flex justify-between items-center border-l-4 border-red-500 shadow-sm">
-                        <div><p class="font-bold text-sm">${s.name}</p><p class="text-[9px] text-gray-400">ولي الأمر: ${s.parentPhone}</p></div>
-                        <button onclick="sendWA('${s.parentPhone}', '${s.name}')" class="text-green-600 font-bold text-xs bg-green-50 px-3 py-2 rounded-lg border border-green-200">تبليغ غياب 📲</button>
-                    </div>`).join('');
-            });
-        }
-
-        function toggleAtt(id, name, isP) {
-            const d = document.getElementById('attDate').value;
-            if(isP) db.ref(`attendance/${d}/${id}`).remove();
-            else db.ref(`attendance/${d}/${id}`).set({ name, time: new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) });
-        }
-
-        function filterAttendanceList() { loadAttendance(); }
-
         function addStudent() {
             const name = document.getElementById('stdName').value;
-            const phone = document.getElementById('stdPhone').value;
             const parent = document.getElementById('parentPhone').value;
-            const center = document.getElementById('stdCenter').value;
-            if(!name || !parent) return alert("الاسم ورقم ولي الأمر ضروريان");
+            if(!name || !parent) return alert("أكمل الاسم ورقم ولي الأمر");
             const id = "N" + Math.floor(10000 + Math.random() * 90000);
-            db.ref('students/'+id).set({ id, name, phone, parentPhone: parent, center });
+            db.ref('students/'+id).set({
+                id, name, 
+                phone: document.getElementById('stdPhone').value,
+                parentPhone: parent,
+                center: document.getElementById('stdCenter').value
+            });
             document.querySelectorAll('#students input').forEach(i => i.value = '');
         }
 
         function printID(id) {
             const s = allStudents.find(st => st.id == id);
             const pArea = document.getElementById('printArea');
-            pArea.innerHTML = `<div style="border:5px solid #1e3a8a; padding:25px; border-radius:30px; text-align:center; width:300px; background:white; font-family:'Cairo', sans-serif; margin:auto;">
-                <img src="https://i.postimg.cc/vgWdFN6t/536797835-1338608134647355-1757609927020787797-n.jpg" style="width:80px; border-radius:15px; margin-bottom:10px;">
-                <h2 style="color:#1e3a8a; font-size:22px; font-weight:900;">مستر يحيى النوبي</h2>
-                <div id="printQrBox" style="margin:15px auto; display:flex; justify-content:center;"></div>
-                <h3 style="font-size:18px; font-weight:900;">${s.name}</h3>
-                <p style="font-weight:900; color:#1e3a8a;">ID: ${s.id}</p>
+            pArea.innerHTML = `<div style="border:5px solid #1e3a8a; padding:20px; border-radius:20px; text-align:center; width:280px; background:white;">
+                <h2 style="color:#1e3a8a; margin-bottom:10px;">مستر يحيى النوبي</h2>
+                <div id="pqr" style="display:flex; justify-content:center; margin-bottom:10px;"></div>
+                <h3 style="font-weight:bold;">${s.name}</h3>
+                <p>ID: ${s.id}</p>
             </div>`;
             pArea.classList.remove('hidden');
-            new QRCode(document.getElementById('printQrBox'), { text: String(s.id), width: 140, height: 140 });
-            setTimeout(() => { window.print(); pArea.classList.add('hidden'); }, 600);
+            new QRCode(document.getElementById('pqr'), { text: String(s.id), width: 120, height: 120 });
+            setTimeout(() => { window.print(); pArea.classList.add('hidden'); }, 500);
         }
 
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(id).classList.add('active'); document.getElementById('btn-'+id).classList.add('active');
+        function searchGradeStudent(q) {
+            const res = allStudents.filter(s => s.name.includes(q));
+            const div = document.getElementById('gradeSearchResults');
+            div.innerHTML = res.map(s => `<div onclick="selectStdGrade('${s.id}','${s.name}')" class="p-3 border-b cursor-pointer hover:bg-gray-100">${s.name}</div>`).join('');
+            div.classList.toggle('hidden', !q);
+        }
+        function selectStdGrade(id, n) {
+            document.getElementById('selectedGradeStdId').value = id;
+            document.getElementById('gradeSearchName').value = n;
+            document.getElementById('gradeSearchResults').classList.add('hidden');
+        }
+        function saveGrade() {
+            const id = document.getElementById('selectedGradeStdId').value;
+            const score = document.getElementById('gradeValue').value;
+            const max = document.getElementById('maxGrade').value;
+            if(!id || !score) return alert("أكمل البيانات");
+            db.ref('grades/'+Date.now()).set({ stdId: id, score, max, exam: document.getElementById('examName').value });
+            alert("تم الحفظ");
         }
 
-        function searchStudents(q) { updateUI(allStudents.filter(s => s.name.includes(q) || s.id.includes(q))); }
         function closeInfoModal() { document.getElementById('infoModal').classList.add('hidden'); }
-        function deleteStd(id) { if(confirm('حذف نهائي؟')) db.ref('students/'+id).remove(); }
+        function searchStudents(q) { updateUI(allStudents.filter(s => s.name.includes(q) || s.id.includes(q))); }
+        function deleteStd(id) { if(confirm('حذف؟')) db.ref('students/'+id).remove(); }
         document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
     </script>
 </body>

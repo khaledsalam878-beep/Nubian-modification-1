@@ -72,6 +72,80 @@
             color: white;
         }
 
+        /* ستايل كارت الطالب للطباعة */
+        .student-card {
+            width: 300px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 3px solid #eab308;
+            margin: 10px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .student-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 100px;
+            height: 100px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 50%;
+        }
+        
+        .student-card::after {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(234, 179, 8, 0.1);
+            border-radius: 50%;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 15px 15px 0 0;
+            margin: -20px -20px 20px -20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .teacher-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin: 0 auto 10px;
+            object-fit: cover;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-card, .print-card * {
+                visibility: visible;
+            }
+            .print-card {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                width: 300px;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+
         @media print { 
             .no-print { display: none !important; } 
             #printArea { display: block !important; }
@@ -334,8 +408,49 @@
             <h3 class="font-bold mb-4 text-gold">🎫 كود الحضور السريع</h3>
             <div id="quickQRCode" class="flex justify-center mb-4"></div>
             <p id="quickQRName" class="font-bold text-lg"></p>
-            <p id="quickQRCode" class="text-sm font-mono bg-gray-100 dark:bg-slate-700 p-2 rounded mt-2"></p>
+            <p id="quickQRCodeText" class="text-sm font-mono bg-gray-100 dark:bg-slate-700 p-2 rounded mt-2"></p>
             <button onclick="markAttendanceFromQuickQR()" class="mt-4 w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition">✅ تسجيل الحضور الآن</button>
+        </div>
+    </div>
+
+    <!-- نافذة طباعة الكارت -->
+    <div id="printCardModal" class="hidden fixed inset-0 bg-black/80 z-[3000] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-md text-center p-6 relative">
+            <button onclick="closePrintCard()" class="absolute top-4 left-4 text-3xl text-gray-500 hover:text-gold">&times;</button>
+            <h3 class="font-bold mb-4 text-gold">🖨️ معاينة كارت الطالب</h3>
+            
+            <!-- كارت الطالب -->
+            <div id="studentCardPreview" class="student-card">
+                <div class="card-header">
+                    <img src="https://i.postimg.cc/vgWdFN6t/536797835-1338608134647355-1757609927020787797-n.jpg" 
+                         alt="الأستاذ يحيي النوبي" 
+                         class="teacher-image"
+                         onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iI2VhYjMwOCI+PHBhdGggZD0iTTEyIDJDNi40OCAyIDIgNi40OCAyIDEyczQuNDggMTAgMTAgMTAgMTAtNC40OCAxMC0xMFMxNy41MiAyIDEyIDJ6bTAgMTNjLTIuMzMgMC03IDEuMTctNyAzLjVWMTljMCAwIDEuNDkgMiA3IDJzNy0yIDctMnYtLjVjMC0yLjMzLTQuNjctMy41LTctMy41em0wLThhMy41IDMuNSAwIDAgMSAwIDcgMy41IDMuNSAwIDAgMSAwLTd6Ii8+PC9zdmc+'">
+                    <h4 class="font-black text-lg">أ. يحيي النوبي</h4>
+                    <p class="text-xs">مدرس العلوم والفيزياء</p>
+                </div>
+                
+                <div class="relative z-10">
+                    <div id="printQRCode" class="flex justify-center mb-3"></div>
+                    
+                    <h2 class="text-2xl font-black text-gold mb-1" id="cardStudentName"></h2>
+                    
+                    <div class="bg-gray-50 p-3 rounded-xl mb-3">
+                        <p class="text-sm" id="cardStudentNumber"></p>
+                        <p class="text-sm font-mono bg-gold/20 p-1 rounded mt-1" id="cardQuickCode"></p>
+                    </div>
+                    
+                    <div class="text-xs text-gray-600 border-t pt-2">
+                        <p>📞 ولي الأمر: <span id="cardStudentPhone"></span></p>
+                        <p>🏫 <span id="cardStudentCenter"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-2 mt-4">
+                <button onclick="printStudentCard()" class="flex-1 bg-gold text-slate-900 font-bold py-3 rounded-xl hover:bg-yellow-400 transition">🖨️ طباعة الكارت</button>
+                <button onclick="closePrintCard()" class="flex-1 bg-gray-500 text-white font-bold py-3 rounded-xl hover:bg-gray-600 transition">إغلاق</button>
+            </div>
         </div>
     </div>
 
@@ -413,6 +528,7 @@
                     <div class="mt-2 flex items-center gap-1">
                         <span class="quick-code" onclick="copyQuickCode('${quickCode}')" title="اضغط للنسخ">🔑 ${quickCode}</span>
                         <button onclick="showQuickQR('${s.id}')" class="qr-button text-sm bg-gold/20 p-1 rounded" title="عرض QR للحضور السريع">📱 QR</button>
+                        <button onclick="showPrintCard('${s.id}')" class="qr-button text-sm bg-blue-500/20 text-blue-600 p-1 rounded" title="طباعة الكارت">🖨️</button>
                     </div>
                     <div class="mt-3 flex gap-2 w-full">
                         <button onclick="deleteStd('${s.id}')" class="flex-1 text-[10px] py-1 bg-red-50 text-red-500 rounded">حذف</button>
@@ -443,7 +559,7 @@
             const quickCode = generateQuickCode(s);
             
             document.getElementById('quickQRName').innerText = s.name;
-            document.getElementById('quickQRCode').innerText = 'الكود السريع: ' + quickCode;
+            document.getElementById('quickQRCodeText').innerText = 'الكود السريع: ' + quickCode;
             
             const qrDiv = document.getElementById('quickQRCode');
             qrDiv.innerHTML = '';
@@ -454,6 +570,124 @@
             });
             
             document.getElementById('quickQRModal').classList.remove('hidden');
+        }
+
+        // عرض كارت الطباعة
+        function showPrintCard(studentId) {
+            const s = allStudents.find(st => st.id == studentId);
+            if(!s) return;
+            
+            const quickCode = generateQuickCode(s);
+            
+            document.getElementById('cardStudentName').innerText = s.name;
+            document.getElementById('cardStudentNumber').innerHTML = s.studentNumber ? `📋 رقم الطالب: ${s.studentNumber}` : '';
+            document.getElementById('cardQuickCode').innerHTML = `🔑 الكود السريع: <span class="font-bold">${quickCode}</span>`;
+            document.getElementById('cardStudentPhone').innerText = s.phone;
+            document.getElementById('cardStudentCenter').innerHTML = s.center || 'السنتر الرئيسي';
+            
+            // إنشاء QR code للطباعة
+            const qrDiv = document.getElementById('printQRCode');
+            qrDiv.innerHTML = '';
+            new QRCode(qrDiv, { 
+                text: String(s.id), 
+                width: 120, 
+                height: 120 
+            });
+            
+            document.getElementById('printCardModal').classList.remove('hidden');
+        }
+
+        // طباعة الكارت
+        function printStudentCard() {
+            const printContent = document.getElementById('studentCardPreview').cloneNode(true);
+            
+            // تجهيز نافذة الطباعة
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html dir="rtl">
+                <head>
+                    <title>كارت الطالب - أ. يحيي النوبي</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+                    <style>
+                        body {
+                            font-family: 'Cairo', sans-serif;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 100vh;
+                            margin: 0;
+                            background: #f0f0f0;
+                        }
+                        .student-card {
+                            width: 300px;
+                            background: white;
+                            border-radius: 20px;
+                            padding: 20px;
+                            text-align: center;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                            border: 3px solid #eab308;
+                            margin: 20px auto;
+                            position: relative;
+                            overflow: hidden;
+                        }
+                        .student-card::before {
+                            content: '';
+                            position: absolute;
+                            top: -50px;
+                            right: -50px;
+                            width: 100px;
+                            height: 100px;
+                            background: rgba(234, 179, 8, 0.1);
+                            border-radius: 50%;
+                        }
+                        .student-card::after {
+                            content: '';
+                            position: absolute;
+                            bottom: -50px;
+                            left: -50px;
+                            width: 150px;
+                            height: 150px;
+                            background: rgba(234, 179, 8, 0.1);
+                            border-radius: 50%;
+                        }
+                        .card-header {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 10px;
+                            border-radius: 15px 15px 0 0;
+                            margin: -20px -20px 20px -20px;
+                            position: relative;
+                            z-index: 1;
+                        }
+                        .teacher-image {
+                            width: 60px;
+                            height: 60px;
+                            border-radius: 50%;
+                            border: 3px solid white;
+                            margin: 0 auto 10px;
+                            object-fit: cover;
+                        }
+                        .text-gold {
+                            color: #eab308;
+                        }
+                        .bg-gold\\/20 {
+                            background: rgba(234, 179, 8, 0.2);
+                        }
+                        @media print {
+                            body { background: white; }
+                            .student-card { box-shadow: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContent.outerHTML}
+                    <script>
+                        window.onload = function() { window.print(); window.close(); }
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
         }
 
         // تسجيل حضور من QR السريع
@@ -475,6 +709,10 @@
         function closeQuickQR() {
             document.getElementById('quickQRModal').classList.add('hidden');
             currentQuickStudent = null;
+        }
+
+        function closePrintCard() {
+            document.getElementById('printCardModal').classList.add('hidden');
         }
 
         // تسجيل طالب (مع إضافة رقم الطالب)
@@ -570,7 +808,7 @@
                     studentGrades.map(g => {
                         let percentage = Math.round((g.score / g.max) * 100);
                         let grade = percentage >= 90 ? '⭐ ممتاز' : 
-                                   percentage >= 75 ? '✅ جيد' : 
+                                   percentage >= 75 ? '✅ جيد جداً' : 
                                    percentage >= 50 ? '⚠️ مقبول' : '❌ ضعيف';
                         return `<tr>
                             <td class="p-2">${g.date || 'غير محدد'}</td>
@@ -679,6 +917,7 @@
                                     ${s.studentNumber ? `<span class="text-[8px] text-gold">#${s.studentNumber}</span>` : ''}
                                     <span class="quick-code text-[8px]" onclick="copyQuickCode('${quickCode}')" title="اضغط للنسخ">🔑 ${quickCode}</span>
                                     <button onclick="showQuickQR('${s.id}')" class="qr-button text-[8px] bg-gold/20 px-1 rounded" title="عرض QR للحضور السريع">📱 QR</button>
+                                    <button onclick="showPrintCard('${s.id}')" class="qr-button text-[8px] bg-blue-500/20 text-blue-600 px-1 rounded" title="طباعة الكارت">🖨️</button>
                                 </div>
                             </div>
                         </div>

@@ -43,12 +43,33 @@
             cursor: pointer;
         }
 
-        .stat-card {
+        .quick-code {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #333;
+            cursor: pointer;
+        }
+        .dark .quick-code {
+            background: #475569;
+            color: #fff;
+        }
+
+        .qr-button {
+            transition: all 0.2s;
+        }
+        .qr-button:hover {
+            transform: scale(1.1);
+        }
+
+        .attendance-search-box {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
             padding: 1rem;
             border-radius: 1rem;
-            text-align: center;
+            margin-bottom: 1rem;
+            color: white;
         }
 
         @media print { 
@@ -140,6 +161,20 @@
                         <h2 class="font-bold text-lg">📝 دفتر الحضور اليومي</h2>
                         <input type="date" id="attDate" onchange="loadAttendance()" class="p-2 bg-yellow-50 dark:bg-slate-700 rounded-lg font-bold">
                     </div>
+                    
+                    <!-- خانة البحث في الحضور -->
+                    <div class="attendance-search-box mb-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="text-2xl">🔍</span>
+                            <span class="font-bold">بحث سريع في الحضور</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                            <input type="text" id="attendanceSearch" onkeyup="filterAttendance()" placeholder="ابحث بالاسم..." class="inp w-full text-slate-900">
+                            <input type="text" id="attendanceSearchNumber" onkeyup="filterAttendance()" placeholder="ابحث برقم الطالب..." class="inp w-full text-slate-900">
+                            <input type="text" id="attendanceSearchCode" onkeyup="filterAttendance()" placeholder="ابحث بالكود السريع..." class="inp w-full text-slate-900">
+                        </div>
+                    </div>
+
                     <div id="attList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
                 </div>
             </section>
@@ -198,6 +233,7 @@
                         <p class="text-gray-600 dark:text-gray-300" id="modalStudentNumber"></p>
                         <p class="text-sm" id="modalStudentPhone"></p>
                         <p class="text-sm" id="modalStudentCenter"></p>
+                        <p class="text-sm font-mono bg-gray-100 dark:bg-slate-700 p-1 rounded mt-1" id="modalStudentQuickCode"></p>
                     </div>
                 </div>
             </div>
@@ -291,6 +327,18 @@
         </div>
     </div>
 
+    <!-- نافذة عرض QR للحضور السريع -->
+    <div id="quickQRModal" class="hidden fixed inset-0 bg-black/80 z-[2500] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-sm text-center p-6 relative">
+            <button onclick="closeQuickQR()" class="absolute top-4 left-4 text-3xl text-gray-500 hover:text-gold">&times;</button>
+            <h3 class="font-bold mb-4 text-gold">🎫 كود الحضور السريع</h3>
+            <div id="quickQRCode" class="flex justify-center mb-4"></div>
+            <p id="quickQRName" class="font-bold text-lg"></p>
+            <p id="quickQRCode" class="text-sm font-mono bg-gray-100 dark:bg-slate-700 p-2 rounded mt-2"></p>
+            <button onclick="markAttendanceFromQuickQR()" class="mt-4 w-full bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition">✅ تسجيل الحضور الآن</button>
+        </div>
+    </div>
+
     <script>
         // تكوين Firebase الجديد
         const firebaseConfig = {
@@ -309,6 +357,7 @@
         let html5QrCode = null;
         let allStudents = [];
         let currentStudentId = null;
+        let currentQuickStudent = null;
 
         // إدارة الدخول
         function checkLogin() {
@@ -341,27 +390,91 @@
             `).join('');
         });
 
+        function generateQuickCode(student) {
+            // كود سريع من 4 حروف: أول 2 من الاسم + أول 2 من الرقم
+            let namePart = student.name.replace(/[^a-zA-Z0-9]/g, '').substring(0, 2).toUpperCase();
+            let numberPart = student.studentNumber ? student.studentNumber.toString().substring(0, 2) : 'XX';
+            let idPart = student.id.toString().slice(-2);
+            return `${namePart}${numberPart}${idPart}`;
+        }
+
         function updateUI(filtered = null) {
             const list = filtered || allStudents;
             document.getElementById('count-total').innerText = allStudents.length;
             
-            document.getElementById('studentsGrid').innerHTML = list.map(s => `
+            document.getElementById('studentsGrid').innerHTML = list.map(s => {
+                const quickCode = generateQuickCode(s);
+                return `
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm border dark:border-slate-700 flex flex-col items-center relative">
                     <div id="qr-${s.id}" class="bg-white p-1 rounded-lg mb-2"></div>
                     <h4 onclick="showStudentProfile('${s.id}')" class="font-black cursor-pointer hover:text-gold transition text-center">${s.name} ℹ️</h4>
                     <p class="text-xs font-bold text-gold">${s.studentNumber ? '📋 رقـم ' + s.studentNumber : ''}</p>
                     <p class="text-[10px] text-gray-400">${s.center || ''} | ${s.phone}</p>
+                    <div class="mt-2 flex items-center gap-1">
+                        <span class="quick-code" onclick="copyQuickCode('${quickCode}')" title="اضغط للنسخ">🔑 ${quickCode}</span>
+                        <button onclick="showQuickQR('${s.id}')" class="qr-button text-sm bg-gold/20 p-1 rounded" title="عرض QR للحضور السريع">📱 QR</button>
+                    </div>
                     <div class="mt-3 flex gap-2 w-full">
                         <button onclick="deleteStd('${s.id}')" class="flex-1 text-[10px] py-1 bg-red-50 text-red-500 rounded">حذف</button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             list.forEach(s => {
                 const el = document.getElementById(`qr-${s.id}`);
                 if(el) { el.innerHTML = ''; new QRCode(el, { text: String(s.id), width: 70, height: 70 }); }
             });
             loadAttendance();
+        }
+
+        // نسخ الكود السريع
+        function copyQuickCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('تم نسخ الكود: ' + code);
+            });
+        }
+
+        // عرض QR للحضور السريع
+        function showQuickQR(studentId) {
+            const s = allStudents.find(st => st.id == studentId);
+            if(!s) return;
+            
+            currentQuickStudent = s;
+            const quickCode = generateQuickCode(s);
+            
+            document.getElementById('quickQRName').innerText = s.name;
+            document.getElementById('quickQRCode').innerText = 'الكود السريع: ' + quickCode;
+            
+            const qrDiv = document.getElementById('quickQRCode');
+            qrDiv.innerHTML = '';
+            new QRCode(qrDiv, { 
+                text: quickCode, 
+                width: 200, 
+                height: 200 
+            });
+            
+            document.getElementById('quickQRModal').classList.remove('hidden');
+        }
+
+        // تسجيل حضور من QR السريع
+        function markAttendanceFromQuickQR() {
+            if(!currentQuickStudent) return;
+            
+            const date = document.getElementById('attDate').value;
+            const student = currentQuickStudent;
+            
+            db.ref(`attendance/${date}/${student.id}`).set({ 
+                name: student.name, 
+                time: new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) 
+            }).then(() => {
+                alert(`تم تسجيل حضور ${student.name} ✅`);
+                closeQuickQR();
+            });
+        }
+
+        function closeQuickQR() {
+            document.getElementById('quickQRModal').classList.add('hidden');
+            currentQuickStudent = null;
         }
 
         // تسجيل طالب (مع إضافة رقم الطالب)
@@ -396,6 +509,7 @@
             document.getElementById('modalStudentNumber').innerHTML = s.studentNumber ? `📋 رقم الطالب: ${s.studentNumber}` : '';
             document.getElementById('modalStudentPhone').innerHTML = `📞 ولي الأمر: ${s.phone}`;
             document.getElementById('modalStudentCenter').innerHTML = s.center ? `🏫 السنتر: ${s.center}` : '';
+            document.getElementById('modalStudentQuickCode').innerHTML = `🔑 الكود السريع: <span class="font-bold text-gold">${generateQuickCode(s)}</span>`;
             
             // جلب كل البيانات
             loadStudentAttendance(id);
@@ -416,21 +530,19 @@
                 Object.keys(days).forEach(date => {
                     if(days[date][studentId]) {
                         presentDays.push({ date, time: days[date][studentId].time });
-                    } else {
-                        // هنا محتاجين نعرف اذا كان الطالب مسجل في هذا اليوم أصلاً
-                        // حالياً سنفترض أن كل الأيام التي لم يحضرها هي غياب
-                        // لكن الأفضل نحدد أيام الدراسة فقط
                     }
                 });
 
                 // تحديث الإحصائيات
                 document.getElementById('totalAttendance').innerText = presentDays.length;
-                document.getElementById('totalAbsence').innerText = '?'; // مؤقتاً
+                document.getElementById('totalAbsence').innerText = '?';
 
                 // عرض قائمة الحضور
                 document.getElementById('studentPresentList').innerHTML = presentDays.length ? 
                     presentDays.map(d => `<li class="flex justify-between bg-white p-2 rounded"><span>📅 ${d.date}</span> <span class="text-green-600">${d.time}</span></li>`).join('') 
                     : '<li class="text-gray-400">لا يوجد حضور مسجل</li>';
+                
+                document.getElementById('studentAbsentList').innerHTML = '<li class="text-gray-400">يتم حساب الغياب...</li>';
             });
         }
 
@@ -525,6 +637,27 @@
             currentStudentId = null;
         }
 
+        // تصفية الحضور
+        function filterAttendance() {
+            const searchName = document.getElementById('attendanceSearch').value.toLowerCase();
+            const searchNumber = document.getElementById('attendanceSearchNumber').value;
+            const searchCode = document.getElementById('attendanceSearchCode').value.toUpperCase();
+            
+            const attendanceItems = document.querySelectorAll('#attList > div');
+            attendanceItems.forEach(item => {
+                const name = item.querySelector('.font-bold')?.innerText.toLowerCase() || '';
+                const number = item.querySelector('.text-gold')?.innerText.replace('#', '') || '';
+                const quickCode = item.querySelector('.quick-code')?.innerText.replace('🔑 ', '') || '';
+                
+                let show = true;
+                if(searchName && !name.includes(searchName)) show = false;
+                if(searchNumber && !number.includes(searchNumber)) show = false;
+                if(searchCode && !quickCode.includes(searchCode)) show = false;
+                
+                item.style.display = show ? 'flex' : 'none';
+            });
+        }
+
         // الحضور والغياب
         function loadAttendance() {
             const date = document.getElementById('attDate').value;
@@ -536,11 +669,18 @@
 
                 document.getElementById('attList').innerHTML = allStudents.map(s => {
                     const isP = logs[s.id];
+                    const quickCode = generateQuickCode(s);
                     return `<div class="p-3 rounded-xl border flex justify-between items-center ${isP?'bg-green-50 border-green-200':'bg-white'}">
                         <div class="flex items-center gap-3">
                             <button onclick="toggleAtt('${s.id}','${s.name}',${isP})" class="w-8 h-8 rounded-full ${isP?'bg-green-500 text-white':'bg-gray-100'}">${isP?'✔':'➕'}</button>
-                            <span class="font-bold text-sm">${s.name}</span>
-                            ${s.studentNumber ? `<span class="text-[8px] text-gold">#${s.studentNumber}</span>` : ''}
+                            <div>
+                                <span class="font-bold text-sm block">${s.name}</span>
+                                <div class="flex items-center gap-1 mt-1">
+                                    ${s.studentNumber ? `<span class="text-[8px] text-gold">#${s.studentNumber}</span>` : ''}
+                                    <span class="quick-code text-[8px]" onclick="copyQuickCode('${quickCode}')" title="اضغط للنسخ">🔑 ${quickCode}</span>
+                                    <button onclick="showQuickQR('${s.id}')" class="qr-button text-[8px] bg-gold/20 px-1 rounded" title="عرض QR للحضور السريع">📱 QR</button>
+                                </div>
+                            </div>
                         </div>
                         <span class="text-[10px] text-gray-400">${isP?logs[s.id].time:'غائب'}</span>
                     </div>`;
@@ -553,6 +693,7 @@
                         <div>
                             <span class="font-bold block">${s.name}</span>
                             ${s.studentNumber ? `<span class="text-[8px] text-gold">#${s.studentNumber}</span>` : ''}
+                            <span class="quick-code text-[8px] block">🔑 ${generateQuickCode(s)}</span>
                         </div>
                         <a href="https://wa.me/2${s.phone}?text=تنبيه غياب: الطالب ${s.name} لم يحضر حصة ${date}" target="_blank" class="bg-green-600 text-white px-3 py-1 rounded-lg text-xs">واتساب 💬</a>
                     </div>
@@ -569,8 +710,8 @@
         // الدرجات والبحث
         function filterGradeSelect(q) {
             const term = q.toLowerCase();
-            const filtered = allStudents.filter(s => s.name.toLowerCase().includes(term) || s.studentNumber?.includes(term));
-            document.getElementById('gradeStudentSelect').innerHTML = filtered.map(s => `<option value="${s.id}">${s.name} ${s.studentNumber ? '(#' + s.studentNumber + ')' : ''}</option>`).join('');
+            const filtered = allStudents.filter(s => s.name.toLowerCase().includes(term) || (s.studentNumber && s.studentNumber.includes(term)));
+            document.getElementById('gradeStudentSelect').innerHTML = filtered.map(s => `<option value="${s.id}">${s.name} ${s.studentNumber ? '(#' + s.studentNumber + ')' : ''} - 🔑 ${generateQuickCode(s)}</option>`).join('');
         }
 
         function sendGrade() {
@@ -614,16 +755,35 @@
             document.getElementById('scanModal').classList.remove('hidden');
             html5QrCode = new Html5Qrcode("reader");
             html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-                const s = allStudents.find(st => String(st.id) === text);
+                // البحث أولاً بالـ ID
+                let s = allStudents.find(st => String(st.id) === text);
+                
+                // إذا لم نجد، نبحث بالكود السريع
+                if(!s) {
+                    s = allStudents.find(st => generateQuickCode(st) === text);
+                }
+                
                 if(s) {
                     const date = document.getElementById('attDate').value;
                     db.ref(`attendance/${date}/${s.id}`).set({ name: s.name, time: new Date().toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) });
                     document.getElementById('scanMsg').innerText = "تم تحضير: " + s.name;
                     setTimeout(() => document.getElementById('scanMsg').innerText = "", 2000);
+                    setTimeout(() => stopScanner(), 1500);
+                } else {
+                    document.getElementById('scanMsg').innerText = "⚠️ طالب غير موجود";
                 }
             }).catch(()=>{});
         }
-        function stopScanner() { if(html5QrCode) html5QrCode.stop(); document.getElementById('scanModal').classList.add('hidden'); }
+        
+        function stopScanner() { 
+            if(html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    document.getElementById('scanModal').classList.add('hidden');
+                });
+            } else {
+                document.getElementById('scanModal').classList.add('hidden');
+            }
+        }
 
         function deleteStd(id) { if(confirm('حذف نهائي؟')) db.ref('students/'+id).remove(); }
         
@@ -632,7 +792,8 @@
             updateUI(allStudents.filter(s => 
                 s.name.toLowerCase().includes(term) || 
                 String(s.id).includes(term) ||
-                (s.studentNumber && s.studentNumber.includes(term))
+                (s.studentNumber && s.studentNumber.includes(term)) ||
+                generateQuickCode(s).toLowerCase().includes(term)
             ));
         }
         
@@ -641,6 +802,13 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-tab'));
             document.getElementById(id).classList.add('active');
             document.getElementById('btn-'+id).classList.add('active-tab');
+            
+            // إعادة تعيين البحث في الحضور عند فتح التبويب
+            if(id === 'attendance') {
+                document.getElementById('attendanceSearch').value = '';
+                document.getElementById('attendanceSearchNumber').value = '';
+                document.getElementById('attendanceSearchCode').value = '';
+            }
         }
         
         document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
